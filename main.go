@@ -39,6 +39,7 @@ func checkNetworkAccess(debug bool) bool {
 	for i := 0; i < maxRetries; i++ {
 		if debug {
 			log.SetFlags(log.LstdFlags)
+			log.Printf("Network check attempt %d/%d", i+1, maxRetries)
 		}
 
 		resp, err := client.Get(CheckURL)
@@ -51,7 +52,10 @@ func checkNetworkAccess(debug bool) bool {
 			log.Println("Network check failed")
 			log.SetFlags(0)
 		}
-		time.Sleep(30 * time.Second)
+
+		if i < maxRetries-1 {
+			time.Sleep(30 * time.Second)
+		}
 	}
 	return false
 }
@@ -124,5 +128,7 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	log.Printf("Response Status: %s", resp.Status)
+	if *debug {
+		log.Printf("Response Status: %s", resp.Status)
+	}
 }
